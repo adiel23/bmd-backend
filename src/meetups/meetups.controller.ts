@@ -1,5 +1,5 @@
-import { Body, Controller, HttpCode, HttpStatus, Param, ParseIntPipe, Patch, Post, Req } from "@nestjs/common";
-import { CreateMeetupDTO, GetMeetupsDTO, GetMeetupsResponseDTO, MeetupResponseDTO, UpdateMeetupDTO, UpdateMeetupResponse} from "./meetups.dtos";
+import { Body, Controller, Delete, HttpCode, HttpStatus, Param, ParseIntPipe, Patch, Post, Req } from "@nestjs/common";
+import { CreateMeetupDTO, DeleteMeetupResponse, GetMeetupsDTO, GetMeetupsResponseDTO, MeetupResponseDTO, UpdateMeetupDTO, UpdateMeetupResponse} from "./meetups.dtos";
 import { MeetupsService } from "./meetups.service";
 import { MeetupEntity } from "./meetups.dtos";
 import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
@@ -81,4 +81,19 @@ export class MeetupsController {
         }
     }
 
+    @Delete(":id")
+    @ApiOperation({summary: "delete a meetup"})
+    @ApiResponse({
+        status: 204,
+        description: "meetup deleted successfully"
+    })
+    @ApiBearerAuth('access-token')
+    @HttpCode(HttpStatus.OK)
+    async delete(@Param('id', ParseIntPipe) id: number, @Req() req: Request & {user: JwtUser}): Promise<DeleteMeetupResponse> {
+        const userId = req.user.sub;
+        await this.meetupsService.delete(id, userId);
+        return {
+            message: "meetup deleted successfully"
+        }
+    }
 }

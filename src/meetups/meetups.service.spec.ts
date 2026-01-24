@@ -12,7 +12,8 @@ describe('MeetupsService', () => {
       create: jest.fn(),
       findMany: jest.fn().mockResolvedValue([]),
       findUnique: jest.fn(),
-      update: jest.fn()
+      update: jest.fn(),
+      delete: jest.fn(),
     }
   };
 
@@ -436,4 +437,37 @@ describe('MeetupsService', () => {
       });
     });
   });
+
+  describe("delete a meetup", () => {
+    it("should throw a not found exception if meetup does not exist", async () => {
+      prismaMock.meetup.findUnique.mockResolvedValue(null);
+
+      await expect(service.delete(1, 1)).rejects.toThrow("meetup not found");
+    })
+
+    it("should throw an unauthorized exception if user is not the creator", async () => {
+      prismaMock.meetup.findUnique.mockResolvedValue({
+        id: 1,
+        createdBy: 2
+      });
+
+      await expect(service.delete(1, 1)).rejects.toThrow("unauthorized to delete this meetup");
+    });
+
+    it("should delete the meetup successfully", async () => {
+      prismaMock.meetup.findUnique.mockResolvedValue({
+        id: 1,
+        createdBy: 1
+      });
+
+      await service.delete(1, 1);
+
+      expect(prismaMock.meetup.delete).toHaveBeenCalledWith({
+        where: {
+          id: 1
+        }
+      });
+
+    });
+  })
 });

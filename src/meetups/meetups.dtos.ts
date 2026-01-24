@@ -257,3 +257,11 @@ export class UpdateMeetupResponse {
   })
   meetup: MeetupEntity;
 }
+
+export class DeleteMeetupResponse {
+  @ApiProperty({
+    example: "Meetup deleted successfully",
+    description: "Response message sent by the server",
+  })
+  message: string;
+}

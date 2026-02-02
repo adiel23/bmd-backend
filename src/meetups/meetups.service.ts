@@ -148,5 +148,27 @@ export class MeetupsService {
 
     return true;
   }
+
+  async delete(meetupId: number, userId: number): Promise<void> {
+    const meetup = await this.prisma.meetup.findUnique({
+      where: {
+        id: meetupId
+      }
+    });
+
+    if (!meetup) {
+      throw new NotFoundException("meetup not found");
+    }
+
+    if (meetup.createdBy !== userId) {
+      throw new UnauthorizedException("unauthorized to delete this meetup");
+    }
+
+    await this.prisma.meetup.delete({
+      where: {
+        id: meetupId
+      }
+    });
+  }
     
 }
